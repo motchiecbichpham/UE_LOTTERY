@@ -11,14 +11,15 @@ import java.util.Map;
 
 public class Database {
 
-  private ArrayList<ResultModel> results = new ArrayList<ResultModel>();
-  private ArrayList<BetModel> bets = new ArrayList<BetModel>();
-  private ArrayList<Map<String, Object>> histories = new ArrayList<>();
+  private ArrayList<ResultModel> results;
+  private ArrayList<BetModel> bets;
+  private ArrayList<Map<String, Object>> histories;
 
   public Database() {
-    // results = ;
-    // bets = ;
-    // histories =;
+    results = new ArrayList<ResultModel>();
+    bets = new ArrayList<BetModel>();
+    histories = new ArrayList<>();
+    ;
   }
 
   public void addResult(ResultModel rs) {

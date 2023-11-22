@@ -20,6 +20,7 @@ import gui.components.MyButton;
 import gui.components.MyLabel;
 import navigation.Screen;
 import utils.Colors;
+import utils.Constants;
 
 public class GuideScreen extends Screen {
   private MyLabel titleLabel;
@@ -29,26 +30,34 @@ public class GuideScreen extends Screen {
   private JScrollPane scrollPane;
 
   public GuideScreen() {
-    titleLabel = new MyLabel("Instruction");
+    titleLabel = new MyLabel(Constants.GUIDE_TITLE);
     titleLabel.setCustomFont(24, true);
-    backButton = new MyButton("Back");
-    playButton = new MyButton("Play");
+    backButton = new MyButton(Constants.BACK_BUTTON);
+    playButton = new MyButton(Constants.PLAY2_BUTTON);
     guideText = new JTextArea();
+
     scrollPane = new JScrollPane(guideText);
-    scrollPane.setPreferredSize(new Dimension(500, 300));
+    scrollPane.setPreferredSize(new Dimension(620, 360));
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    instructionArea();
+
+    guideText.setText(Constants.GUIDE_TEXT);
+    guideText.setLineWrap(true);
+    guideText.setWrapStyleWord(true);
+    guideText.setEditable(false);
+    guideText.setBorder(new EmptyBorder(12, 12, 12, 12));
+    guideText.setForeground(Colors.primary5);
+    guideText.setFont(new Font(Constants.FONT_NAME, Font.PLAIN, Constants.FONT_SIZE_MEDIUM));
     backButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("WelcomeScreen");
+        navigateTo(Constants.WELCOME_SCREEN);
       }
     });
 
     playButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("HomeScreen");
+        navigateTo(Constants.HOME_SCREEN);
       }
     });
 
@@ -62,7 +71,6 @@ public class GuideScreen extends Screen {
 
   private void layoutComponent() {
     setLayout(new GridBagLayout());
-
     GridBagConstraints gc = new GridBagConstraints();
     gc.weightx = 1;
     gc.weighty = 0.2;
@@ -80,22 +88,4 @@ public class GuideScreen extends Screen {
     add(playButton, gc);
   }
 
-  private void instructionArea() {
-    guideText.setText("Hello player! Welcome to Lottery Game."
-        + "\n\nYou will have 2 options of bets, which could help you win more money."
-        + "\n\n1. The <<BET>> game: You will choose 4 distinct numbers between 1 and 20 and bet some fee." +
-        "\n\n- If you have found 3 correct numbers, you will get 5 times your bet amount." +
-        "\n\n- If you have found 4 correct numbers, you will get 50 times." +
-
-        "\n\n2. The <<SUPER BET>> game:  You will choose an additional lucky number between 1 and 10." +
-        "\n\n- If you have found the correct lucky number, you will earn 5 times the payout obtained with the simple Bet game."
-        +
-        "\n\n- If not, you will receive the same payout as simple Bet game");
-    guideText.setLineWrap(true);
-    guideText.setWrapStyleWord(true);
-    guideText.setEditable(false);
-    guideText.setBorder(new EmptyBorder(20, 20, 20, 20));
-    guideText.setForeground(Colors.primary5);
-    guideText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-  }
 }

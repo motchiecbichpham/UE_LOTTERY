@@ -9,38 +9,55 @@ import java.awt.event.ActionListener;
 import gui.components.MyButton;
 import gui.components.MyLabel;
 import navigation.Screen;
+import utils.Constants;
+import utils.Utils;
 
 public class WelcomeScreen extends Screen {
   private MyLabel welcomeText;
   private MyButton playButton;
   private MyButton guideButton;
   private MyButton historyButton;
+  private MyButton exitButton;
+
+  private Utils utils;
 
   public WelcomeScreen() {
-    welcomeText = new MyLabel("WELCOME TO LOTTERY BET");
+    welcomeText = new MyLabel(Constants.WELCOME_TITLE);
     welcomeText.setCustomFont(24, true);
-    playButton = new MyButton("PLAY GAME NOW", 180);
-    guideButton = new MyButton("Read the instruction", 150);
-    historyButton = new MyButton("See the history ", 150);
+    playButton = new MyButton(Constants.PLAY_BUTTON, 200);
+    guideButton = new MyButton(Constants.GUIDE_BUTTON, 150);
+    historyButton = new MyButton(Constants.HISTORY_BUTTON, 150);
+    exitButton = new MyButton(Constants.EXIT_BUTTON, 150);
 
+    utils = new Utils();
     playButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("HomeScreen");
+        navigateTo(Constants.HOME_SCREEN);
       }
     });
     guideButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("GuideScreen");
+        navigateTo(Constants.GUIDE_SCREEN);
       }
+    });
+
+    exitButton.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        utils.showExitConfirmDialog(WelcomeScreen.this);
+
+      }
+
     });
 
     historyButton.addActionListener(new ActionListener() {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("HistoryScreen");
+        navigateTo(Constants.HISTORY_SCREEN);
       }
 
     });
@@ -63,10 +80,13 @@ public class WelcomeScreen extends Screen {
     add(welcomeText, gc);
     gc.gridy++;
     add(historyButton, gc);
-    gc.insets = new Insets(0, 0, 100, 0);
+    gc.insets = new Insets(0, 0, 120, 0);
     add(guideButton, gc);
-    gc.insets = new Insets(0, 0, 200, 0);
+    gc.insets = new Insets(0, 0, 240, 0);
     add(playButton, gc);
+    gc.insets = new Insets(0, 0, -120, 0);
+    add(exitButton,
+        gc);
   }
 
 }

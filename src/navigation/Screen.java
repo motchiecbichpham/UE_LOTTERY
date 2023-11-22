@@ -30,12 +30,10 @@ public class Screen extends JPanel {
 
       @Override
       public void ancestorRemoved(AncestorEvent event) {
-        System.out.println("out");
       }
 
       @Override
       public void ancestorMoved(AncestorEvent event) {
-        System.out.println("move");
 
       }
 

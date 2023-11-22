@@ -5,15 +5,15 @@
  */
 package controller;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
-import events.FormEvent;
 import model.BetModel;
 import model.Database;
 import model.ResultModel;
+import utils.Constants;
 
 public class Controller {
   Database db = new Database();
@@ -38,70 +38,108 @@ public class Controller {
     return null;
   }
 
-  public ArrayList<Map<String, Object>> getHistories() {
+  public ArrayList<HashMap<String, Object>> getHistories() {
     return db.getHistories();
   }
 
-  private Map<String, ArrayList<Integer>> drawNumbers() {
-
-    Map<String, ArrayList<Integer>> rs = new HashMap<>();
-    ArrayList<Integer> templateResult = new ArrayList<>();
-
-    for (int i = 1; i <= 20; i++)
-      templateResult.add(i);
-    rs.put("regular", new ArrayList<>());
-    rs.put("lucky", new ArrayList<>());
+  private ArrayList<Integer> drawNumbers() {
+    ArrayList<Integer> templateRegular = new ArrayList<>();
+    ArrayList<Integer> regular = new ArrayList<>();
+    for (int i = Constants.REGULAR_LOWER_LIMIT; i <= Constants.REGULAR_UPPER_LIMIT; i++)
+      templateRegular.add(i);
 
     Random rng = new Random();
     for (int i = 0; i < 4; i++) {
-      int rndIndex = rng.nextInt(templateResult.size());
-      rs.get("regular").add(templateResult.get(rndIndex));
-      templateResult.remove(rndIndex);
+      int rndIndex = rng.nextInt(templateRegular.size());
+      regular.add(templateRegular.get(rndIndex));
+      templateRegular.remove(rndIndex);
     }
-    int luckyNumber = new Random().nextInt(9) + 1;
-    rs.get("lucky").add(luckyNumber);
-    return rs;
+
+    return regular;
   }
 
-  public void calculateGain(FormEvent e) {
-    int gain = 0;
+  private int drawLucky() {
+    int luckyNumber = new Random().nextInt(Constants.LUCKY_UPPER_LIMIT) + Constants.LUCKY_LOWER_LIMIT;
+    return luckyNumber;
+  }
+
+  private ArrayList<Integer> correctDrawNumber(BetModel b) {
+    Random random = new Random();
+    int randomNumber = random.nextInt(2) + 3;
+    ArrayList<Integer> regular = new ArrayList<>();
+
+    switch (randomNumber) {
+      case 3:
+        ArrayList<Integer> templateRegular = new ArrayList<>();
+        for (int i = Constants.REGULAR_LOWER_LIMIT; i <= Constants.REGULAR_UPPER_LIMIT; i++)
+          templateRegular.add(i);
+        for (int i = 0; i < randomNumber; i++) {
+          regular.add(b.getNumbers()[i]);
+          templateRegular.remove(Integer.valueOf(b.getNumbers()[i]));
+        }
+        regular.add(templateRegular.get(new Random().nextInt(Constants.REGULAR_UPPER_LIMIT - randomNumber)));
+        break;
+      case 4:
+        for (int i = 0; i < randomNumber; i++) {
+          regular.add(b.getNumbers()[i]);
+        }
+        break;
+      default:
+        break;
+    }
+    return regular;
+  }
+
+  private int correctDrawLucky(BetModel b) {
+    int luckyNumber = b.getLuckyNumber();
+    if (luckyNumber == 0) {
+      luckyNumber = new Random().nextInt(Constants.LUCKY_UPPER_LIMIT) + Constants.LUCKY_LOWER_LIMIT;
+    }
+    return luckyNumber;
+  }
+
+  public void calculateGain(BetModel betModel, Boolean isCorrectNumbers, Boolean isCorrectLucky) {
+    BigInteger gain = new BigInteger("0");
     int count = 0;
-    Map<String, ArrayList<Integer>> rs = drawNumbers();
-    BetModel userBet = e.getUserBet();
-    int betAmount = userBet.getBetAmount();
-    int[] numbers = userBet.getNumbers();
-    ArrayList<Integer> regular = new ArrayList<>(rs.get("regular"));
-    boolean superBet = userBet.isSuperBet();
+    ArrayList<Integer> regular = isCorrectNumbers ? correctDrawNumber(betModel) : drawNumbers();
+    ArrayList<Integer> temp_regular = new ArrayList<>(regular);
+    BigInteger betAmount = new BigInteger(String.valueOf(betModel.getBetAmount()));
+    int[] numbers = betModel.getNumbers();
+    int resultLuckyNumber = isCorrectLucky ? correctDrawLucky(betModel) : drawLucky();
+
+    boolean isSuperBet = betModel.isSuperBet();
     for (int i = 0; i < numbers.length; i++) {
-      int index = regular.indexOf(numbers[i]);
+      int index = temp_regular.indexOf(numbers[i]);
       if (index >= 0) {
         count++;
-        regular.remove(index);
+        temp_regular.remove(index);
       }
     }
 
     if (count == 3) {
-      gain = betAmount * 5;
+      gain = new BigInteger(String.valueOf(Constants.CORRECT_3_NUMBERS)).multiply(betAmount);
     } else if (count == 4) {
-      gain = betAmount * 50;
+      gain = new BigInteger(String.valueOf(Constants.CORRECT_4_NUMBERS)).multiply(betAmount);
     }
 
-    if (superBet) {
-      int luckyNumber = userBet.getLuckyNumber();
-      if (rs.get("lucky").contains(luckyNumber)) {
-        gain = gain * 5;
+    if (isSuperBet) {
+      int luckyNumber = betModel.getLuckyNumber();
+      if (resultLuckyNumber == luckyNumber) {
+        gain = gain.multiply(new BigInteger(String.valueOf(Constants.CORRECT_LUCKY)));
       }
     }
-    ResultModel resultModel = new ResultModel(rs, gain);
+    ResultModel resultModel = new ResultModel(regular, resultLuckyNumber, gain, count);
+
     db.addResult(resultModel);
-    db.addHistory(userBet, resultModel);
-    db.addUserBet(userBet);
+    db.addHistory(betModel, resultModel);
+    db.addUserBet(betModel);
+
   }
 
   public ArrayList<Integer> generateNumbers(Boolean isGenerateLuckyNumber) {
     ArrayList<Integer> templateNumbers = new ArrayList<>();
     ArrayList<Integer> generatedNumbers = new ArrayList<>();
-    for (int i = 1; i <= 20; i++) {
+    for (int i = Constants.REGULAR_LOWER_LIMIT; i <= Constants.REGULAR_UPPER_LIMIT; i++) {
       templateNumbers.add(i);
     }
     Random rng = new Random();
@@ -111,8 +149,9 @@ public class Controller {
       templateNumbers.remove(rndIndex);
     }
     if (isGenerateLuckyNumber) {
-      generatedNumbers.add(new Random().nextInt(9) + 1);
+      generatedNumbers.add(new Random().nextInt(Constants.LUCKY_UPPER_LIMIT) + Constants.LUCKY_LOWER_LIMIT);
     }
     return generatedNumbers;
   }
+
 }

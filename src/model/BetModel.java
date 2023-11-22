@@ -5,6 +5,8 @@
  */
 package model;
 
+import utils.Constants;
+
 public class BetModel {
   private int[] numbers;
   private int luckyNumber;
@@ -14,9 +16,9 @@ public class BetModel {
   public BetModel() {
   }
 
-  public BetModel(int[] numbers, boolean superBet, int betAmount) {
+  public BetModel(int[] numbers, boolean isSuperBet, int betAmount) {
     this.numbers = numbers;
-    this.isSuperBet = superBet;
+    this.isSuperBet = isSuperBet;
     this.betAmount = betAmount;
   }
 
@@ -31,12 +33,24 @@ public class BetModel {
     return numbers;
   }
 
+  public void setNumbers(int[] numbers) {
+    this.numbers = numbers;
+  }
+
   public int getLuckyNumber() {
     return luckyNumber;
   }
 
+  public void setLuckyNumber(int luckyNumber) {
+    this.luckyNumber = luckyNumber;
+  }
+
   public boolean isSuperBet() {
     return isSuperBet;
+  }
+
+  public void setSuperBet(boolean isSuperBet) {
+    this.isSuperBet = isSuperBet;
   }
 
   public int getBetAmount() {
@@ -45,19 +59,29 @@ public class BetModel {
 
   @Override
   public String toString() {
-    String st = "Your current bet numbers are: ";
-
+    String st = Constants.NORMAL_NUMBERS;
     for (int i : numbers) {
-      st += i + ", ";
+      st += i + "  ";
     }
     if (isSuperBet) {
-
-      st += "with " + luckyNumber + " as lucky number";
+      st += "\n" + Constants.LUCKY_NUMBER + luckyNumber;
     } else {
-      st += "without lucky number.";
+      st += "\n" + Constants.NO_LUCKY;
     }
-    st += "\n\n And you bet " + betAmount;
+    st += "\n" + Constants.BET_AMOUNT + betAmount + Constants.CURRENCY;
+    return st;
+  }
 
+  public String parseToString() {
+    String st = "You bet " + betAmount + Constants.CURRENCY + " on ";
+    for (int i : numbers) {
+      st += i + ",  ";
+    }
+    if (isSuperBet) {
+      st += Constants.WITH_LUCKY + luckyNumber;
+    } else {
+      st += Constants.WITHOUT_LUCKY;
+    }
     return st;
   }
 }

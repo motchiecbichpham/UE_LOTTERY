@@ -16,17 +16,17 @@ import java.util.ArrayList;
 import javax.swing.JCheckBox;
 
 import controller.Controller;
-import events.FormEvent;
-import events.FormListener;
+import exception.BetAmountException;
+import exception.ChosenNumberException;
+import exception.LuckyNumberException;
 import gui.components.MyButton;
 import gui.components.MyErrorLabel;
 import gui.components.MyLabel;
 import gui.components.MyTextField;
+import model.BetModel;
 import navigation.Screen;
 import utils.Validation;
-import utils.BetAmountException;
-import utils.ChosenNumberException;
-import utils.LuckyNumberException;
+import utils.Constants;
 import utils.Utils;
 
 public class HomeScreen extends Screen {
@@ -37,6 +37,8 @@ public class HomeScreen extends Screen {
   private MyLabel superBetLabel;
   private MyLabel amountBetLabel;
   private MyLabel currencyLabel;
+  private MyLabel correctNumbersTestLabel;
+  private MyLabel correctLuckyTestLabel;
 
   private MyErrorLabel errorNumbersLabel;
   private MyErrorLabel errorAmountBetLabel;
@@ -47,31 +49,31 @@ public class HomeScreen extends Screen {
   private MyTextField betAmount;
 
   private JCheckBox betCheckBox;
+  private JCheckBox correctNumberTestBox;
+  private JCheckBox correctLuckyTestBox;
 
   private MyButton drawButton;
   private MyButton exitButton;
   private MyButton backButton;
   private MyButton generateButton;
 
-  private FormListener formListener;
   private Validation validation;
   private Utils utils;
   private Controller controller;
 
-  public HomeScreen() {
-    Dimension dim = getPreferredSize();
-    dim.width = 270;
-    setPreferredSize(dim);
-    setMinimumSize(dim);
+  public HomeScreen(Controller c) {
+    this.controller = c;
 
-    titleLabel = new MyLabel("Lottery game");
+    titleLabel = new MyLabel(Constants.HOME_TITLE);
     titleLabel.setCustomFont(24, true);
 
-    chooseLabel = new MyLabel("Choose your numbers");
-    extraChooseLabel = new MyLabel("Extra number for super bet");
-    superBetLabel = new MyLabel("Super bet ?");
-    amountBetLabel = new MyLabel("Bet = ");
-    currencyLabel = new MyLabel("€");
+    chooseLabel = new MyLabel(Constants.CHOOSE_NUMBERS);
+    extraChooseLabel = new MyLabel(Constants.CHOOSE_LUCKY_NUMBER);
+    superBetLabel = new MyLabel(Constants.SUPER_BET);
+    amountBetLabel = new MyLabel(Constants.BET_AMOUNT);
+    currencyLabel = new MyLabel(Constants.CURRENCY);
+    correctNumbersTestLabel = new MyLabel(Constants.NUMBERS_CORRECT_TEST);
+    correctLuckyTestLabel = new MyLabel(Constants.LUCKY_CORRECT_TEST);
 
     errorNumbersLabel = new MyErrorLabel("");
     errorAmountBetLabel = new MyErrorLabel("");
@@ -82,11 +84,13 @@ public class HomeScreen extends Screen {
     betAmount = new MyTextField(40, 120);
 
     betCheckBox = new JCheckBox();
+    correctNumberTestBox = new JCheckBox();
+    correctLuckyTestBox = new JCheckBox();
 
-    drawButton = new MyButton("Draw numbers");
-    exitButton = new MyButton("Exit", 60);
-    backButton = new MyButton("Back to Home");
-    generateButton = new MyButton("Generate");
+    drawButton = new MyButton(Constants.DRAW_BUTTON);
+    exitButton = new MyButton(Constants.EXIT_BUTTON, 60);
+    backButton = new MyButton(Constants.BACK_HOME_BUTTON);
+    generateButton = new MyButton(Constants.GENERATE_BUTTON);
 
     validation = new Validation();
     utils = new Utils();
@@ -94,21 +98,23 @@ public class HomeScreen extends Screen {
     // set up lucky bet
     extraChooseLabel.setEnabled(false);
     luckyNumberField.setEnabled(false);
+    correctLuckyTestBox.setEnabled(false);
+    correctLuckyTestLabel.setEnabled(false);
     betCheckBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         boolean isTicked = betCheckBox.isSelected();
         extraChooseLabel.setEnabled(isTicked);
         luckyNumberField.setEnabled(isTicked);
+        correctLuckyTestBox.setEnabled(isTicked);
+        correctLuckyTestLabel.setEnabled(isTicked);
       }
 
     });
 
     generateButton.addActionListener(new ActionListener() {
-
       @Override
       public void actionPerformed(ActionEvent e) {
-        controller = new Controller();
         ArrayList<Integer> generatedNumbers = controller.generateNumbers(betCheckBox.isSelected());
         for (int i = 0; i < numberFields.length; i++) {
           numberFields[i].setText(generatedNumbers.get(i).toString());
@@ -130,29 +136,22 @@ public class HomeScreen extends Screen {
             for (int i = 0; i < numberFields.length; i++) {
               numbers[i] = Integer.parseInt(numberFields[i].getText());
             }
-            boolean superBet = betCheckBox.isSelected();
+            boolean isSuperBet = betCheckBox.isSelected();
             int luckyNumber;
             int bet = Integer.parseInt(betAmount.getText());
-            FormEvent ev;
+            BetModel betModel;
 
-            if (superBet) {
+            if (isSuperBet) {
               if (validation.validateLuckyNumber(luckyNumberField)) {
                 luckyNumber = Integer.parseInt(luckyNumberField.getText());
-                ev = new FormEvent(this, numbers, luckyNumber,
-                    superBet, bet);
-                if (formListener != null) {
-                  formListener.formEventOccurred(ev);
-                }
+                betModel = new BetModel(numbers, luckyNumber, isSuperBet, bet);
+                submit(betModel);
               }
             } else {
-              ev = new FormEvent(this, numbers, superBet, bet);
-              if (formListener != null) {
-                formListener.formEventOccurred(ev);
-              }
+              betModel = new BetModel(numbers, isSuperBet, bet);
+              submit(betModel);
             }
-
           }
-
         } catch (ChosenNumberException ex) {
           handleChosenNumberException(ex);
         } catch (BetAmountException ex) {
@@ -166,20 +165,17 @@ public class HomeScreen extends Screen {
     });
 
     exitButton.addActionListener(new ActionListener() {
-
       @Override
       public void actionPerformed(ActionEvent e) {
         utils.showExitConfirmDialog(HomeScreen.this);
       }
-
     });
 
     backButton.addActionListener(new ActionListener() {
-
       @Override
       public void actionPerformed(ActionEvent e) {
         clearForm();
-        navigateTo("WelcomeScreen");
+        navigateTo(Constants.WELCOME_SCREEN);
       }
 
     });
@@ -192,16 +188,53 @@ public class HomeScreen extends Screen {
     layoutComponents();
   }
 
+  private void clearForm() {
+    for (int i = 0; i < numberFields.length; i++) {
+      numberFields[i].setText("");
+    }
+    luckyNumberField.setText("");
+    betAmount.setText("");
+    betCheckBox.setSelected(false);
+    extraChooseLabel.setEnabled(false);
+    luckyNumberField.setEnabled(false);
+    correctLuckyTestBox.setSelected(false);
+    correctNumberTestBox.setSelected(false);
+    correctLuckyTestBox.setEnabled(false);
+    correctLuckyTestLabel.setEnabled(false);
+    resetErrorLabel();
+
+  }
+
+  private void resetErrorLabel() {
+    errorNumbersLabel.setText("");
+    errorAmountBetLabel.setText("");
+    errorLuckyNumberLabel.setText("");
+  }
+
+  private void submit(BetModel betModel) {
+    Boolean isCorrectNumbersTest = false;
+    Boolean isCorrectLuckyTest = false;
+    if (correctLuckyTestBox.isSelected()) {
+      isCorrectLuckyTest = true;
+    }
+    if (correctNumberTestBox.isSelected()) {
+      isCorrectNumbersTest = true;
+    }
+    controller.calculateGain(betModel, isCorrectNumbersTest, isCorrectLuckyTest);
+    clearForm();
+    navigateTo(Constants.RESULT_SCREEN);
+  }
+
   private void handleChosenNumberException(ChosenNumberException ex) {
-    errorNumbersLabel.setText("*" + ex.getMessage());
+    errorNumbersLabel.setText(ex.getMessage());
   }
 
   private void handleBetAmountException(BetAmountException ex) {
-    errorAmountBetLabel.setText("*" + ex.getMessage());
+    errorAmountBetLabel.setText(ex.getMessage());
   }
 
   private void handleLuckyNumberException(LuckyNumberException ex) {
-    errorLuckyNumberLabel.setText("*" + ex.getMessage());
+    errorLuckyNumberLabel.setText(ex.getMessage());
 
   }
 
@@ -211,12 +244,17 @@ public class HomeScreen extends Screen {
     GridBagConstraints gc = new GridBagConstraints();
     gc.weightx = 1;
     gc.weighty = 0.1;
+    // title
     gc.gridy = 0;
     gc.anchor = GridBagConstraints.FIRST_LINE_START;
     add(titleLabel, gc);
+
+    // exit button
     gc.gridx = 1;
     gc.anchor = GridBagConstraints.FIRST_LINE_END;
     add(exitButton, gc);
+
+    // choose numbers
     gc.gridy = 1;
     gc.gridx = 0;
     gc.anchor = GridBagConstraints.LINE_START;
@@ -227,6 +265,8 @@ public class HomeScreen extends Screen {
       gc.insets = new Insets(0, 48 * i, 0, 0);
       add(numberFields[i], gc);
     }
+
+    // choose lucky number
     gc.gridx = 1;
     gc.gridy = 1;
     gc.insets = new Insets(0, 60, 0, 0);
@@ -240,19 +280,21 @@ public class HomeScreen extends Screen {
     gc.insets = new Insets(0, 0, 0, 0);
     add(errorNumbersLabel, gc);
 
+    // super bet box
     gc.gridy++;
     gc.insets = new Insets(0, 0, 0, 0);
     add(betCheckBox, gc);
     gc.insets = new Insets(0, 32, 0, 0);
     add(superBetLabel, gc);
 
+    // bet amount
     gc.gridx = 0;
     gc.gridy++;
     gc.insets = new Insets(0, 0, 0, 0);
     add(amountBetLabel, gc);
-    gc.insets = new Insets(0, 48, 0, 0);
+    gc.insets = new Insets(0, 90, 0, 0);
     add(betAmount, gc);
-    gc.insets = new Insets(0, 180, 0, 0);
+    gc.insets = new Insets(0, 214, 0, 0);
     add(currencyLabel, gc);
 
     gc.gridx = 1;
@@ -266,6 +308,18 @@ public class HomeScreen extends Screen {
 
     gc.gridy++;
     gc.insets = new Insets(0, 0, 0, 0);
+    add(correctNumberTestBox, gc);
+    gc.insets = new Insets(0, 32, 0, 0);
+    add(correctNumbersTestLabel, gc);
+    gc.gridx++;
+    gc.insets = new Insets(0, 60, 0, 0);
+    add(correctLuckyTestBox, gc);
+    gc.insets = new Insets(0, 92, 0, 0);
+    add(correctLuckyTestLabel, gc);
+    // bottom
+    gc.gridy++;
+    gc.gridx = 0;
+    gc.insets = new Insets(0, 0, 0, 0);
     gc.anchor = GridBagConstraints.LAST_LINE_START;
     add(backButton, gc);
     gc.gridx = 1;
@@ -273,26 +327,4 @@ public class HomeScreen extends Screen {
     add(drawButton, gc);
   }
 
-  public void setFormListener(FormListener listener) {
-    this.formListener = listener;
-  }
-
-  public void clearForm() {
-    for (int i = 0; i < numberFields.length; i++) {
-      numberFields[i].setText("");
-    }
-    luckyNumberField.setText("");
-    betAmount.setText("");
-    betCheckBox.setSelected(false);
-    resetErrorLabel();
-    extraChooseLabel.setEnabled(false);
-    luckyNumberField.setEnabled(false);
-
-  }
-
-  private void resetErrorLabel() {
-    errorNumbersLabel.setText("");
-    errorAmountBetLabel.setText("");
-    errorLuckyNumberLabel.setText("");
-  }
 }

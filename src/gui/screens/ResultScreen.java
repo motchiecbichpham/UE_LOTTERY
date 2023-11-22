@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import controller.Controller;
-import events.BackEventListener;
 
 import gui.components.MyButton;
 import gui.components.MyLabel;
@@ -22,6 +21,7 @@ import gui.components.MyTextField;
 import model.BetModel;
 import model.ResultModel;
 import navigation.Screen;
+import utils.Constants;
 import utils.Utils;
 
 public class ResultScreen extends Screen {
@@ -31,6 +31,8 @@ public class ResultScreen extends Screen {
   private MyLabel luckyLabel;
   private MyLabel gainLabel;
   private MyLabel currencyLabel;
+  private MyLabel userBetLabel;
+  private MyLabel correctionLabel;
 
   private MyTextField number;
   private MyTextField lucky;
@@ -42,41 +44,39 @@ public class ResultScreen extends Screen {
 
   private ResultModel currentResult;
   private BetModel currentBet;
-  private BackEventListener backEventListener;
   private Utils utils;
 
   private Controller controller;
 
-  public ResultScreen() {
-    titleLabel = new MyLabel("Result for your last draw.");
-    titleLabel.setCustomFont(24, true);
-    numbersLabel = new MyLabel("Normal numbers");
-    luckyLabel = new MyLabel("Lucky number");
-    gainLabel = new MyLabel("Gain = ");
-    currencyLabel = new MyLabel("€");
+  public ResultScreen(Controller c) {
+    this.controller = c;
+    titleLabel = new MyLabel(Constants.RESULT_TITLE);
+    titleLabel.setCustomFont(Constants.FONT_SIZE_LARGE, true);
+    numbersLabel = new MyLabel(Constants.NORMAL_NUMBERS);
+    luckyLabel = new MyLabel(Constants.LUCKY_NUMBER);
+    gainLabel = new MyLabel(Constants.GAIN);
+    currencyLabel = new MyLabel(Constants.CURRENCY);
+    userBetLabel = new MyLabel("");
+    correctionLabel = new MyLabel("");
 
     lucky = new MyTextField();
     lucky.setEditable(false);
     gain = new MyTextField(40, 120);
     gain.setEditable(false);
 
-    continueButton = new MyButton("Re-play");
-    exiButton = new MyButton("Exit");
-    historyButton = new MyButton("History");
+    continueButton = new MyButton(Constants.REPLAY_BUTTON);
+    exiButton = new MyButton(Constants.EXIT_BUTTON);
+    historyButton = new MyButton(Constants.HISTORY_BUTTON);
 
     currentResult = new ResultModel();
     currentBet = new BetModel();
 
     utils = new Utils();
 
-    controller = new Controller();
-
     continueButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (backEventListener != null) {
-          backEventListener.backEventListener();
-        }
+        navigateTo(Constants.HOME_SCREEN);
       }
 
     });
@@ -94,26 +94,18 @@ public class ResultScreen extends Screen {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        navigateTo("HistoryScreen");
+        navigateTo(Constants.HISTORY_SCREEN);
       }
 
     });
 
   }
 
-  public void setBackEventListener(BackEventListener listener) {
-    this.backEventListener = listener;
-  }
-
-  public void setData(ResultModel rs, BetModel b) {
-    this.currentResult = rs;
-    this.currentBet = b;
-  }
-
   @Override
   public void init() {
     super.init();
-    System.out.println(controller.getCurrentResult());
+    this.currentResult = controller.getCurrentResult();
+    this.currentBet = controller.getCurrentBet();
     layoutComponents(currentResult, currentBet);
   }
 
@@ -121,7 +113,7 @@ public class ResultScreen extends Screen {
     setLayout(new GridBagLayout());
     GridBagConstraints gc = new GridBagConstraints();
     gc.weightx = 1;
-    gc.weighty = 1;
+    gc.weighty = 0.1;
     gc.gridy = 0;
     gc.gridx = 0;
     gc.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -135,7 +127,7 @@ public class ResultScreen extends Screen {
     gc.anchor = GridBagConstraints.LINE_START;
     add(numbersLabel, gc);
     gc.gridy++;
-    ArrayList<Integer> regular = rs.getNumbers().get("regular");
+    ArrayList<Integer> regular = rs.getNumbers();
     for (int i = 0; i < regular.size(); i++) {
       number = new MyTextField();
       number.setText(regular.get(i).toString());
@@ -149,12 +141,21 @@ public class ResultScreen extends Screen {
     gc.insets = new Insets(0, 48, 0, 0);
     add(luckyLabel, gc);
     gc.gridy++;
-    lucky.setText(rs.getNumbers().get("lucky").get(0).toString());
+    lucky.setText(Integer.toString(rs.getLuckyNumber()));
     add(lucky, gc);
 
     gc.gridx = 0;
     gc.gridy++;
-    gc.anchor = GridBagConstraints.LINE_START;
+    gc.insets = new Insets(0, 0, 0, 0);
+    userBetLabel.setText(b.parseToString());
+    add(userBetLabel, gc);
+
+    gc.gridy++;
+    correctionLabel.setText(Constants.COUNT_CORRECTION + rs.getCountCorrection());
+    add(correctionLabel, gc);
+
+    gc.insets = new Insets(0, 0, 0, 0);
+    gc.gridy++;
     gc.insets = new Insets(0, 0, 0, 0);
     add(gainLabel, gc);
     gain.setText(rs.getGain().toString());
@@ -165,6 +166,7 @@ public class ResultScreen extends Screen {
 
     gc.insets = new Insets(0, 0, 0, 0);
     gc.gridy++;
+    gc.gridx = 0;
     gc.anchor = GridBagConstraints.LAST_LINE_START;
     add(exiButton, gc);
     gc.gridx = 1;

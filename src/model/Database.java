@@ -7,19 +7,20 @@ package model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+
+import utils.Constants;
 
 public class Database {
 
   private ArrayList<ResultModel> results;
   private ArrayList<BetModel> bets;
-  private ArrayList<Map<String, Object>> histories;
+  private ArrayList<HashMap<String, Object>> histories;
 
   public Database() {
     results = new ArrayList<ResultModel>();
     bets = new ArrayList<BetModel>();
     histories = new ArrayList<>();
-    ;
+
   }
 
   public void addResult(ResultModel rs) {
@@ -31,10 +32,12 @@ public class Database {
   }
 
   public void addHistory(BetModel b, ResultModel rs) {
-    Map<String, Object> history = new HashMap<>();
-    history.put("userbet", b);
-    history.put("result", rs);
+    HashMap<String, Object> history = new HashMap<>();
+    history.put(Constants.TURN, histories.size() + 1);
+    history.put(Constants.USER_BET, b);
+    history.put(Constants.RESULT, rs);
     histories.add(history);
+
   }
 
   public ResultModel getCurrentResult() {
@@ -53,7 +56,7 @@ public class Database {
     return bets;
   }
 
-  public ArrayList<Map<String, Object>> getHistories() {
+  public ArrayList<HashMap<String, Object>> getHistories() {
     return histories;
   }
 

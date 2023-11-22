@@ -3,7 +3,7 @@
  * @email thi-bich.pham@ut-capitole.fr
  * @desc [description]
  */
-package utils;
+package exception;
 
 public class BetAmountException extends Exception {
   public BetAmountException(String message) {

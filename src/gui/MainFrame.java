@@ -7,19 +7,19 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
 import controller.Controller;
-import events.BackEventListener;
-import events.FormEvent;
-import events.FormListener;
 import gui.screens.ResultScreen;
 import gui.screens.WelcomeScreen;
 import gui.screens.GuideScreen;
 import gui.screens.HistoryScreen;
 import gui.screens.HomeScreen;
 import navigation.ScreenManager;
+import utils.Constants;
 
 public class MainFrame extends JFrame {
 
@@ -34,46 +34,29 @@ public class MainFrame extends JFrame {
 
   public MainFrame() {
 
-    welcomeScreen = new WelcomeScreen();
-    homeScreen = new HomeScreen();
-    resultScreen = new ResultScreen();
-    guideScreen = new GuideScreen();
-    historyScreen = new HistoryScreen();
-
     controller = new Controller();
-    screenManager.addScreen(welcomeScreen, "WelcomeScreen");
-    screenManager.addScreen(homeScreen, "HomeScreen");
-    screenManager.addScreen(resultScreen, "ResultScreen");
-    screenManager.addScreen(guideScreen, "GuideScreen");
-    screenManager.addScreen(historyScreen, "HistoryScreen");
+    welcomeScreen = new WelcomeScreen();
+    homeScreen = new HomeScreen(controller);
+    resultScreen = new ResultScreen(controller);
+    guideScreen = new GuideScreen();
+    historyScreen = new HistoryScreen(controller);
+
+    screenManager.addScreen(welcomeScreen, Constants.WELCOME_SCREEN);
+    screenManager.addScreen(homeScreen, Constants.HOME_SCREEN);
+    screenManager.addScreen(resultScreen, Constants.RESULT_SCREEN);
+    screenManager.addScreen(guideScreen, Constants.GUIDE_SCREEN);
+    screenManager.addScreen(historyScreen, Constants.HISTORY_SCREEN);
 
     setLayout(new BorderLayout());
     add(screenManager, BorderLayout.CENTER);
-    setMinimumSize(new Dimension(600, 450));
-    setMaximumSize(new Dimension(800, 600));
-    setSize(500, 400);
+    setSize(getPreferredSize());
+    setMinimumSize(new Dimension(720, 540));
+    setMaximumSize(new Dimension(720, 540));
+    setSize(720, 540);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-    homeScreen.setFormListener(new FormListener() {
-      @Override
-      public void formEventOccurred(FormEvent e) {
-        controller.calculateGain(e);
-        System.out.println(controller.getCurrentResult());
-        resultScreen.setData(controller.getCurrentResult(),
-            controller.getCurrentBet());
-        homeScreen.clearForm();
-        homeScreen.navigateTo("ResultScreen");
-      }
-
-    });
-    resultScreen.setBackEventListener(new BackEventListener() {
-      @Override
-      public void backEventListener() {
-        homeScreen.clearForm();
-        resultScreen.navigateTo("HomeScreen");
-      }
-    });
-
+    // pack();
+    // setLocationRelativeTo(null);
     setVisible(true);
   }
 

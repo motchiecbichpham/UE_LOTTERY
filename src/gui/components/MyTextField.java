@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import utils.Colors;
+import utils.Constants;
 
 public class MyTextField extends JTextField {
   public MyTextField(int height, int width) {
@@ -38,7 +39,7 @@ public class MyTextField extends JTextField {
     LineBorder lineBorder = new LineBorder(Colors.primary5);
     setHorizontalAlignment(JTextField.CENTER);
     setBorder(lineBorder);
-    setFont(new Font("Times New Roman", Font.PLAIN, 16));
+    setFont(new Font(Constants.FONT_NAME, Font.PLAIN, Constants.FONT_SIZE_MEDIUM));
     setForeground(Colors.primary5);
   }
 

@@ -6,7 +6,6 @@
 package navigation;
 
 import java.awt.CardLayout;
-
 import javax.swing.JPanel;
 
 public class ScreenManager extends JPanel {

@@ -7,8 +7,6 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
@@ -55,8 +53,8 @@ public class MainFrame extends JFrame {
     setSize(720, 540);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-    // pack();
-    // setLocationRelativeTo(null);
+    pack();
+    setLocationRelativeTo(null);
     setVisible(true);
   }
 

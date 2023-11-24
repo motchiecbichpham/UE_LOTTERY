@@ -59,7 +59,7 @@ public class BetModel {
 
   @Override
   public String toString() {
-    String st = Constants.NORMAL_NUMBERS;
+    String st = Constants.REGULAR_NUMBERS;
     for (int i : numbers) {
       st += i + "  ";
     }

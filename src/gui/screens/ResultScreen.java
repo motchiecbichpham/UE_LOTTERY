@@ -52,7 +52,7 @@ public class ResultScreen extends Screen {
     this.controller = c;
     titleLabel = new MyLabel(Constants.RESULT_TITLE);
     titleLabel.setCustomFont(Constants.FONT_SIZE_LARGE, true);
-    numbersLabel = new MyLabel(Constants.NORMAL_NUMBERS);
+    numbersLabel = new MyLabel(Constants.REGULAR_NUMBERS);
     luckyLabel = new MyLabel(Constants.LUCKY_NUMBER);
     gainLabel = new MyLabel(Constants.GAIN);
     currencyLabel = new MyLabel(Constants.CURRENCY);

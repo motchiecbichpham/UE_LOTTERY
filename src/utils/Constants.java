@@ -33,7 +33,7 @@ public class Constants {
   public static final String BACK_BUTTON = "Back";
 
   // label
-  public static final String NORMAL_NUMBERS = "Numbers: ";
+  public static final String REGULAR_NUMBERS = "Numbers: ";
   public static final String LUCKY_NUMBER = "Lucky number: ";
   public static final String GAIN = "Gain = ";
   public static final String CURRENCY = " €";
@@ -48,18 +48,17 @@ public class Constants {
   public static final String NO_DATA = "You have no records of history. Play game now to have some :D";
   public static final String NO_LUCKY = "No lucky number";
 
-  public static final String GUIDE_TEXT = "Hello player! Welcome to Lottery Game."
+  public static final String GUIDE_TEXT = "Hello DAVID! Welcome to Lottery Game."
       + "\n\nYou will have 2 options of bets, which could help you win more money."
-      + " Additionally, you should notice that your bet amount must be between 1 euro and 2 billion euro and it have to be an integer."
-
+      + "Additionally, you should notice that your bet amount must be between 1 euro and 2 billion euro and it have to be an integer."
       + "\n\n1. The <<BET>> game: You will choose 4 distinct numbers between 1 and 20 and bet some fee." +
       "\n\n- If you have found 3 correct numbers, you will get 5 times your bet amount." +
       "\n\n- If you have found 4 correct numbers, you will get 50 times." +
-
       "\n\n2. The <<SUPER BET>> game:  You will choose an additional lucky number between 1 and 10." +
       "\n\n- If you have found the correct lucky number, you will earn 5 times the payout obtained with the simple <<BET>> game."
       +
-      "\n\n- If not, you will receive the same payout as simple <<BET>> game";
+      "\n\n- If not, you will receive the same payout as simple <<BET>> game"
+      + "\n\nLast but not least, if you want to test the calculation in the happy case, you can select checkboxes (regular number or lucky number or both) during your bet turn.";
 
   // font
   public static final String FONT_NAME = "Times New Roman";

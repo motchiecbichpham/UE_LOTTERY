@@ -7,17 +7,20 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
 import controller.Controller;
-import gui.screens.ResultScreen;
-import gui.screens.WelcomeScreen;
 import gui.screens.GuideScreen;
 import gui.screens.HistoryScreen;
 import gui.screens.HomeScreen;
+import gui.screens.ResultScreen;
+import gui.screens.WelcomeScreen;
 import navigation.ScreenManager;
 import utils.Constants;
+import utils.Utils;
 
 public class MainFrame extends JFrame {
 
@@ -29,6 +32,7 @@ public class MainFrame extends JFrame {
 
   private Controller controller;
   private ScreenManager screenManager = new ScreenManager();
+  private Utils closingPrompt = new Utils();
 
   public MainFrame() {
 
@@ -51,11 +55,19 @@ public class MainFrame extends JFrame {
     setMinimumSize(new Dimension(720, 540));
     setMaximumSize(new Dimension(720, 540));
     setSize(720, 540);
-    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    // setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    addWindowListener(new WindowAdapter() {
+    @Override
+    public void windowClosing(WindowEvent we)
+      { 
+        closingPrompt.showExitConfirmDialog(MainFrame.this);
+      }
+    });
 
     pack();
     setLocationRelativeTo(null);
     setVisible(true);
   }
-
 }

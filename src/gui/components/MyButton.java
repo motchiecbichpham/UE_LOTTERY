@@ -21,7 +21,5 @@ public class MyButton extends JButton {
     setForeground(Colors.primary5);
     setPreferredSize(new Dimension(width, 48));
     setFont(new Font(Constants.FONT_NAME, Font.PLAIN, Constants.FONT_SIZE_MEDIUM));
-
   }
-
 }

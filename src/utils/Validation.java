@@ -6,6 +6,7 @@
 package utils;
 
 import java.util.HashSet;
+
 import javax.swing.JTextField;
 
 import exception.BetAmountException;
@@ -59,7 +60,7 @@ public class Validation {
         int value = Integer.parseInt(text);
         if (value <= Constants.BET_LOWER_LIMIT || value > Constants.BET_UPPER_LIMIT) {
           isValid = false;
-          throw new BetAmountException("* Bet amount have to be greater than 0 and smaller than 2 billion");
+          throw new BetAmountException("* Bet amount must be between 0 - 2 billion €");
 
         }
       } catch (NumberFormatException ex) {
@@ -92,7 +93,6 @@ public class Validation {
     } catch (NumberFormatException ex) {
       isValid = false;
       throw new LuckyNumberException("* Lucky number is not a valid integer.");
-
     }
     return isValid;
   }
